@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OTHRWRLD</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,300;0,400;0,600;0,700;0,900;1,700;1,900&family=Barlow:wght@300;400&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg:#f2f0ec;
+  --bg2:#e8e5e0;
+  --ink:#111110;
+  --ink2:#2a2926;
+  --mid:#888580;
+  --faint:#c8c4be;
+  --faint2:#dedad5;
+  --red:#d63a2a;
+  --white:#f9f8f6;
+}
+
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);
+  color:var(--ink);
+  font-family:'Barlow',sans-serif;
+  font-weight:300;
+  min-height:100vh;
+  overflow-x:hidden;
+  cursor:none;
+}
+
+/* grain */
+body::after{
+  content:'';
+  position:fixed;inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+  pointer-events:none;z-index:200;
+}
+
+/* CURSOR */
+.cur{position:fixed;width:8px;height:8px;background:var(--ink);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:width .2s,height .2s,background .2s}
+.cur-o{position:fixed;width:32px;height:32px;border:1px solid rgba(17,17,16,.3);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:width .25s,height .25s,border-color .25s}
+.cur.big{width:16px;height:16px}
+.cur-o.big{width:56px;height:56px;border-color:rgba(17,17,16,.12)}
+.cur.red{background:var(--red)}
+
+/* VIEWS */
+.view{display:none}
+.view.on{display:block}
+
+/* ───────────── NAV ───────────── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  display:flex;justify-content:space-between;align-items:center;
+  padding:0 40px;
+  height:64px;
+  background:var(--bg);
+  border-bottom:1.5px solid var(--ink);
+}
+.nav-logo{
+  font-family:'Barlow Condensed',sans-serif;
+  font-weight:900;font-size:1.5rem;
+  letter-spacing:0.12em;text-transform:uppercase;
+  color:var(--ink);text-decoration:none;
+}
+.nav-right{display:flex;align-items:center;gap:32px}
+.nav-tag{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:0.7rem;font-weight:600;
+  letter-spacing:0.22em;text-transform:uppercase;
+  color:var(--mid);
+}
+.nav-btn{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:0.7rem;font-weight:600;
+  letter-spacing:0.22em;text-transform:uppercase;
+  color:var(--mid);background:none;border:none;cursor:none;
+  transition:color .15s;
+}
+.nav-btn:hover{color:var(--ink)}
+
+/* ───────────── HERO ───────────── */
+.hero{
+  min-height:100vh;
+  padding:64px 0 0;
+  display:grid;
+  grid-template-rows:1fr auto;
+  border-bottom:1.5px solid var(--ink);
+}
+
+.hero-main{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  border-bottom:1.5px solid var(--ink);
+}
+
+/* LEFT */
+.hero-l{
+  padding:64px 40px 56px;
+  border-right:1.5px solid var(--ink);
+  display:flex;flex-direction:column;justify-content:space-between;
+}
+
+.hero-badge{
+  display:inline-flex;align-items:center;gap:10px;
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:0.65rem;font-weight:600;
+  letter-spacing:0.3em;text-transform:uppercase;
+  color:var(--mid);margin-bottom:48px;
+}
+.badge-dot{width:6px;height:6px;background:var(--red);border-radius:50%;animation:blink 1.8s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+
+.hero-title{
+  font-family:'Barlow Condensed',sans-serif;
+  font-weight:900;
+  font-size:clamp(5.5rem,11vw,11rem);
+  line-height:.88;
+  letter-spacing:-.01em;
+  text-transform:uppercase;
+  color:var(--ink);
+  opacity:0;animation:up .9s .3s forwards;
+}
+.hero-title .slash{color:var(--red);font-style:italic}
+
+.hero-sub{
+  font-size:.85rem;
+  line-height:1.75;
+  color:var(--mid);
+  max-width:340px;
+  margin-top:44px;
+  opacity:0;animation:up .9s .55s forwards;
+}
+
+/* email */
+.email-block{
+  margin-top:52px;
+  opacity:0;animation:up .9s .75s forwards;
+}
+.email-line{
+  display:flex;
+  border:1.5px solid var(--ink);
+}
+.email-in{
+  flex:1;background:transparent;border:none;outline:none;
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:.8rem;font-weight:400;
+  letter-spacing:.12em;text-transform:uppercase;
+  color:var(--ink);padding:14px 18px;
+}
+.email-in::placeholder{color:var(--faint)}
+.email-go{
+  background:var(--ink);color:var(--bg);
+  border:none;
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:.7rem;font-weight:700;
+  letter-spacing:.25em;text-transform:uppercase;
+  padding:14px 24px;cursor:none;
+  transition:background .18s,color .18s;
+}
+.email-go:hover{background:var(--red);color:#fff}
+.email-hint{
+  font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--faint);margin-top:12px;
+}
+.email-ok{
+  display:none;
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:.95rem;font-weight:600;
+  letter-spacing:.1em;text-transform:uppercase;
+  color:var(--mid);padding:16px 0;
+}
+
+/* RIGHT */
+.hero-r{
+  display:flex;flex-direction:column;
+  justify-content:space-between;
+  padding:64px 40px 56px;
+  position:relative;overflow:hidden;
+}
+
+.hero-r-num{
+  font-family:'Barlow Condensed',sans-serif;
+  font-weight:900;font-style:italic;
+  font-size:clamp(8rem,18vw,18rem);
+  line-height:1;
+  color:transparent;
+  -webkit-text-stroke:1.5px var(--faint2);
+  position:absolute;bottom:-20px;right:-10px;
+  user-select:none;pointer-events:none;
+  opacity:0;animation:fade 1.4s 1s forwards;
+}
+
+.hero-tags{
+  display:flex;flex-wrap:wrap;gap:8px;
+  opacity:0;animation:up .9s .9s forwards;
+}
+.htag{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:.65rem;font-weight:600;
+  letter-spacing:.2em;text-transform:uppercase;
+  border:1.5px solid var(--faint);
+  color:var(--mid);
+  padding:7px 14px;
+  transition:border-color .2s,color .2s;
+}
+.htag:hover{border-color:var(--ink);color:var(--ink)}
+
+.hero-r-label{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:.65rem;font-weight:600;
+  letter-spacing:.3em;text-transform:uppercase;
+  color:var(--mid);
+  opacity:0;animation:up .9s .65s forwards;
+}
+
+.hero-r-stat{
+  opacity:0;animation:up .9s .8s forwards;
+}
+.stat-big{
+  font-family:'Barlow Condensed',sans-serif;
+  font-weight:900;font-size:5rem;
+  letter-spacing:-.01em;line-height:1;
+  color:var(--ink);margin-bottom:4px;
+}
+.stat-label{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:.65rem;font-weight:600;
+  letter-spacing:.25em;text-transform:uppercase;color:var(--mid);
+}
+
+/* BOTTOM BAR */
+.hero-bottom{
+  display:grid;grid-template-columns:repeat(3,1fr);
+}
+.hb-cell{
+  padding:22px 40px;
+  border-right:1.5px solid var(--ink);
+  display:flex;align-items:center;gap:16px;
+}
+.hb-cell:last-child{border-right:none}
+.hb-num{
+  font-family:'Barlow Condensed',sans-serif;
+  font-weight:900;font-size:1.4rem;
+  letter-spacing:.02em;color:var(--ink);
+}
+.hb-text{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:.62rem;font-weight:600;
+  letter-spacing:.2em;text-transform:uppercase;color:var(--mid);
+  line-height:1.5;
+}
+
+/* ───────────── MARQUEE ───────────── */
+.marquee-wrap{
+  background:var(--ink);
+  padding:13px 0;overflow:hidden;
+  border-bottom:1.5px solid var(--ink);
+}
+.marquee-track{
+  display:flex;white-space:nowrap;
+  animation:scroll 22s linear infinite;
+}
+.m-item{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:.72rem;font-weight:700;
+  letter-spacing:.32em;text-transform:uppercase;
+  color:var(--bg);padding:0 40px;flex-shrink:0;
+}
+.m-item.red{color:var(--red)}
+@keyframes scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+/* ───────────── STATEMENT ───────────── */
+.statement{
+  display:grid;grid-template-columns:auto 1fr;
+  border-bottom:1.5px solid var(--ink);
+}
+.statement-side{
+  width:64px;
+  border-right:1.5px solid var(--ink);
+  display:flex;align-items:center;justify-content:center;
+}
+.statement-side span{
+  font-family:'Barlow Condensed',sans-serif;
+  font-weight:700;font-size:.6rem;
+  letter-spacing:.3em;text-transform:uppercase;
+  color:var(--mid);
+  writing-mode:vertical-rl;transform:rotate(180deg);
+}
+.statement-body{
+  padding:72px 60px;
+}
+.statement-q{
+  font-family:'Barlow Condensed',sans-serif;
+  font-weight:900;font-style:italic;
+  font-size:clamp(2.2rem,4.5vw,4.5rem);
+  line-height:1.05;letter-spacing:.01em;
+  text-transform:uppercase;
+  color:var(--ink);margin-bottom:32px;
+}
+.statement-q em{color:var(--red);font-style:italic}
+.statement-p{
+  font-size:.88rem;line-height:1.8;
+  color:var(--mid);max-width:520px;
+}
+
+/* ───────────── GRID SECTION ───────────── */
+.grid-section{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  border-bottom:1.5px solid var(--ink);
+}
+.grid-cell{
+  padding:56px 40px;
+  border-right:1.5px solid var(--ink);
+  position:relative;
+}
+.grid-cell:last-child{border-right:none}
+.gc-index{
+  font-family:'Barlow Condensed',sans-serif;
+  font-weight:900;font-size:.65rem;
+  letter-spacing:.28em;text-transform:uppercase;
+  color:var(--red);margin-bottom:20px;
+}
+.gc-title{
+  font-family:'Barlow Condensed',sans-serif;
+  font-weight:900;font-size:1.9rem;
+  letter-spacing:.02em;text-transform:uppercase;
+  line-height:1.05;margin-bottom:16px;
+}
+.gc-body{
+  font-size:.8rem;line-height:1.75;color:var(--mid);
+}
+
+/* ───────────── COLLECTION ───────────── */
+.collection{border-bottom:1.5px solid var(--ink)}
+.col-header{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:28px 40px;
+  border-bottom:1.5px solid var(--ink);
+}
+.col-header-title{
+  font-family:'Barlow Condensed',sans-serif;
+  font-weight:900;font-size:1.1rem;
+  letter-spacing:.14em;text-transform:uppercase;
+}
+.col-header-note{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:.65rem;font-weight:600;
+  letter-spacing:.28em;text-transform:uppercase;
+  color:var(--mid);
+  display:flex;align-items:center;gap:8px;
+}
+.col-header-note::before{content:'';width:18px;height:1.5px;background:var(--mid)}
+
+.col-grid{
+  display:grid;grid-template-columns:repeat(4,1fr);
+}
+.col-card{
+  aspect-ratio:3/4;
+  border-right:1.5px solid var(--ink);
+  background:var(--bg2);
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  gap:20px;
+  position:relative;overflow:hidden;
+  transition:background .3s;
+}
+.col-card:last-child{border-right:none}
+.col-card:hover{background:#dedad5}
+.col-card-line{width:1px;height:56px;background:var(--faint)}
+.col-card-label{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:.62rem;font-weight:600;
+  letter-spacing:.3em;text-transform:uppercase;
+  color:var(--faint);
+}
+.col-card:hover .col-card-label{color:var(--mid)}
+.col-card-num{
+  position:absolute;bottom:20px;right:20px;
+  font-family:'Barlow Condensed',sans-serif;
+  font-weight:900;font-size:5rem;
+  color:transparent;-webkit-text-stroke:1px var(--faint2);
+  line-height:1;user-select:none;
+}
+
+/* ───────────── FOOTER ───────────── */
+footer{
+  display:grid;grid-template-columns:1fr 1fr 1fr;
+  border-top:1.5px solid var(--ink);
+}
+.ft-cell{
+  padding:36px 40px;
+  border-right:1.5px solid var(--ink);
+}
+.ft-cell:last-child{border-right:none}
+.ft-logo{
+  font-family:'Barlow Condensed',sans-serif;
+  font-weight:900;font-size:1.3rem;
+  letter-spacing:.14em;text-transform:uppercase;
+}
+.ft-copy{
+  font-size:.6rem;letter-spacing:.15em;text-transform:uppercase;
+  color:var(--mid);margin-top:8px;
+}
+.ft-links{display:flex;flex-direction:column;gap:10px}
+.ft-link{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:.7rem;font-weight:600;
+  letter-spacing:.22em;text-transform:uppercase;
+  color:var(--mid);text-decoration:none;cursor:none;
+  transition:color .15s;display:flex;align-items:center;gap:10px;
+}
+.ft-link::before{content:'→';opacity:0;transform:translateX(-6px);transition:opacity .2s,transform .2s}
+.ft-link:hover{color:var(--ink)}
+.ft-link:hover::before{opacity:1;transform:translateX(0)}
+.ft-social{display:flex;flex-direction:column;gap:10px;align-items:flex-end}
+
+/* ─────────── LOGIN ─────────── */
+#view-login{min-height:100vh;background:var(--bg);display:flex;flex-direction:column}
+.login-bar{
+  height:64px;padding:0 40px;
+  display:flex;justify-content:space-between;align-items:center;
+  border-bottom:1.5px solid var(--ink);
+}
+.login-back{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:.7rem;font-weight:600;
+  letter-spacing:.22em;text-transform:uppercase;
+  color:var(--mid);background:none;border:none;cursor:none;
+  display:flex;align-items:center;gap:8px;transition:color .15s;
+}
+.login-back::before{content:'←'}
+.login-back:hover{color:var(--ink)}
+.login-body{flex:1;display:flex;align-items:center;justify-content:center;padding:80px 24px}
+.login-card{width:100%;max-width:420px}
+.login-head{
+  font-family:'Barlow Condensed',sans-serif;
+  font-weight:900;font-size:3.5rem;
+  letter-spacing:.04em;text-transform:uppercase;
+  margin-bottom:4px;line-height:1;
+}
+.login-sub{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:.65rem;font-weight:600;
+  letter-spacing:.28em;text-transform:uppercase;
+  color:var(--mid);margin-bottom:52px;
+}
+.lfield{margin-bottom:28px}
+.llabel{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:.6rem;font-weight:700;
+  letter-spacing:.3em;text-transform:uppercase;
+  color:var(--mid);display:block;margin-bottom:10px;
+}
+.linput{
+  width:100%;background:transparent;
+  border:none;border-bottom:1.5px solid var(--ink);
+  outline:none;
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:.9rem;font-weight:400;
+  letter-spacing:.08em;color:var(--ink);
+  padding:12px 0;
+  transition:border-color .2s;
+}
+.linput:focus{border-color:var(--red)}
+.linput.err{border-color:var(--red);animation:shk .4s}
+@keyframes shk{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.lerr{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:.75rem;font-weight:600;
+  letter-spacing:.12em;text-transform:uppercase;
+  color:var(--red);min-height:20px;margin-bottom:12px;
+  text-align:center;
+}
+.lsubmit{
+  width:100%;background:var(--ink);color:var(--bg);
+  border:none;
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:.75rem;font-weight:700;
+  letter-spacing:.32em;text-transform:uppercase;
+  padding:18px;cursor:none;
+  transition:background .18s;
+}
+.lsubmit:hover{background:var(--red)}
+
+/* ─────────── ADMIN ─────────── */
+#view-admin{min-height:100vh;background:var(--bg2)}
+.admin-bar{
+  height:64px;padding:0 40px;
+  background:var(--ink);
+  display:flex;justify-content:space-between;align-items:center;
+}
+.admin-bar-logo{
+  font-family:'Barlow Condensed',sans-serif;
+  font-weight:900;font-size:1.3rem;
+  letter-spacing:.14em;text-transform:uppercase;color:#fff;
+}
+.admin-bar-right{display:flex;align-items:center;gap:28px}
+.admin-who{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:.65rem;font-weight:600;
+  letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.4);
+}
+.admin-lo{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:.65rem;font-weight:600;
+  letter-spacing:.22em;text-transform:uppercase;
+  color:rgba(255,255,255,.5);background:none;border:none;cursor:none;
+  transition:color .15s;
+}
+.admin-lo:hover{color:#fff}
+.admin-body{padding:52px 40px}
+.admin-title{
+  font-family:'Barlow Condensed',sans-serif;
+  font-weight:900;font-size:2.8rem;
+  letter-spacing:.04em;text-transform:uppercase;
+  line-height:1;margin-bottom:4px;
+}
+.admin-date{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:.62rem;font-weight:600;
+  letter-spacing:.25em;text-transform:uppercase;
+  color:var(--mid);margin-bottom:44px;
+}
+
+/* stats */
+.astats{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;margin-bottom:32px}
+.astat{background:var(--bg);padding:28px 28px 24px}
+.astat-lbl{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:.58rem;font-weight:700;
+  letter-spacing:.3em;text-transform:uppercase;
+  color:var(--mid);margin-bottom:12px;
+}
+.astat-val{
+  font-family:'Barlow Condensed',sans-serif;
+  font-weight:900;font-size:3rem;
+  line-height:1;color:var(--ink);margin-bottom:6px;
+}
+.astat-sub{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:.58rem;font-weight:600;
+  letter-spacing:.18em;text-transform:uppercase;color:var(--mid);
+}
+.spill{
+  display:inline-flex;align-items:center;gap:7px;
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:.58rem;font-weight:700;
+  letter-spacing:.22em;text-transform:uppercase;
+  color:var(--mid);background:var(--bg2);
+  padding:5px 12px;margin-top:4px;
+}
+.sdot{width:5px;height:5px;background:var(--red);border-radius:50%;animation:blink 1.8s infinite}
+
+/* panels */
+.apanels{display:grid;grid-template-columns:2fr 1fr;gap:2px}
+.apanel{background:var(--bg);padding:36px}
+.apanel-hd{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:.62rem;font-weight:700;
+  letter-spacing:.3em;text-transform:uppercase;
+  color:var(--mid);padding-bottom:18px;
+  border-bottom:1.5px solid var(--ink);margin-bottom:28px;
+}
+
+/* sub table */
+.sub-head,.sub-r{
+  display:grid;grid-template-columns:2.5fr 1fr 1fr;
+  gap:12px;padding:13px 0;
+  border-bottom:1px solid var(--faint2);
+  align-items:center;
+}
+.sub-head{border-bottom:1.5px solid var(--ink);margin-bottom:4px}
+.sh{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:.55rem;font-weight:700;
+  letter-spacing:.28em;text-transform:uppercase;color:var(--mid);
+}
+.sc{font-size:.72rem;letter-spacing:.03em;color:var(--ink)}
+.sc.dim{color:var(--mid);font-size:.62rem}
+.stag{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:.52rem;font-weight:700;
+  letter-spacing:.2em;text-transform:uppercase;
+  color:var(--mid);background:var(--bg2);
+  padding:4px 10px;display:inline-block;
+}
+.no-sub-msg{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:.75rem;font-weight:600;
+  letter-spacing:.12em;text-transform:uppercase;
+  color:var(--faint);margin-top:24px;
+}
+
+/* launch panel */
+.lp-item{padding:16px 0;border-bottom:1px solid var(--faint2)}
+.lp-item:last-child{border-bottom:none}
+.lp-lbl{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:.52rem;font-weight:700;
+  letter-spacing:.3em;text-transform:uppercase;
+  color:var(--mid);margin-bottom:6px;
+}
+.lp-val{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:.9rem;font-weight:600;
+  letter-spacing:.04em;color:var(--ink);
+}
+
+/* ANIMS */
+@keyframes up{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+
+/* RESPONSIVE */
+@media(max-width:960px){
+  nav,footer .ft-cell,
+  .login-bar,.admin-body,.admin-bar{padding-left:24px;padding-right:24px}
+  .hero-main{grid-template-columns:1fr}
+  .hero-l{border-right:none;border-bottom:1.5px solid var(--ink)}
+  .hero-r{min-height:300px}
+  .hero-bottom{grid-template-columns:1fr}
+  .hb-cell{border-right:none;border-bottom:1.5px solid var(--ink)}
+  .grid-section{grid-template-columns:1fr}
+  .grid-cell{border-right:none;border-bottom:1.5px solid var(--ink)}
+  .col-grid{grid-template-columns:repeat(2,1fr)}
+  footer{grid-template-columns:1fr}
+  .ft-cell{border-right:none;border-bottom:1.5px solid var(--ink)}
+  .ft-social{align-items:flex-start}
+  .statement{grid-template-columns:1fr}
+  .statement-side{display:none}
+  .statement-body{padding:48px 24px}
+  .astats{grid-template-columns:repeat(2,1fr)}
+  .apanels{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<div class="cur" id="cur"></div>
+<div class="cur-o" id="curo"></div>
+
+<!-- ═══════════ MAIN ═══════════ -->
+<div class="view on" id="view-main">
+
+<nav>
+  <a class="nav-logo" href="#">OTHRWRLD</a>
+  <div class="nav-right">
+    <span class="nav-tag">SS26 — Coming Soon</span>
+    <button class="nav-btn" onclick="go('view-login')">Admin</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-main">
+    <!-- LEFT -->
+    <div class="hero-l">
+      <div>
+        <div class="hero-badge"><span class="badge-dot"></span>New Brand Launching</div>
+        <h1 class="hero-title">OTHR<br><span class="slash">WRLD</span></h1>
+        <p class="hero-sub">Streetwear built from the outside in. Raw cuts, heavy fabric, zero compromise. The first drop is coming — get on the list before the doors open.</p>
+      </div>
+      <div class="email-block">
+        <div class="email-line">
+          <input class="email-in" type="email" id="eIn" placeholder="Your email — get early access">
+          <button class="email-go" onclick="doEmail()">Notify Me</button>
+        </div>
+        <div class="email-hint" id="eHint">No spam. First access to drops.</div>
+        <div class="email-ok" id="eOk">You're in — we'll hit you first.</div>
+      </div>
+    </div>
+
+    <!-- RIGHT -->
+    <div class="hero-r">
+      <div class="hero-r-label">Collection 001</div>
+      <div class="hero-r-stat">
+        <div class="stat-big">000</div>
+        <div class="stat-label">Products Live — Yet</div>
+      </div>
+      <div class="hero-tags">
+        <span class="htag">Oversized</span>
+        <span class="htag">Heavy Cotton</span>
+        <span class="htag">Washed</span>
+        <span class="htag">Unisex</span>
+        <span class="htag">Limited</span>
+        <span class="htag">No Restock</span>
+        <span class="htag">Global Ship</span>
+      </div>
+      <div class="hero-r-num">001</div>
+    </div>
+  </div>
+
+  <!-- BOTTOM BAR -->
+  <div class="hero-bottom">
+    <div class="hb-cell">
+      <div class="hb-num">001</div>
+      <div class="hb-text">First Drop<br>In Prep</div>
+    </div>
+    <div class="hb-cell">
+      <div class="hb-num">0</div>
+      <div class="hb-text">Restocks.<br>Ever.</div>
+    </div>
+    <div class="hb-cell">
+      <div class="hb-num">∞</div>
+      <div class="hb-text">Shipped<br>Worldwide</div>
+    </div>
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee-wrap">
+  <div class="marquee-track" id="mTrack"></div>
+</div>
+
+<!-- STATEMENT -->
+<section class="statement">
+  <div class="statement-side"><span>Manifesto</span></div>
+  <div class="statement-body">
+    <div class="statement-q">Not built for<br><em>everyone.</em><br>Built for the<br><em>right ones.</em></div>
+    <p class="statement-p">OTHRWRLD is streetwear from the fringes. Not chasing trends, not begging for collabs. Every piece is designed to outlast the season — heavy fabric, deliberate cuts, and runs so small your neighbour won't own the same thing.</p>
+  </div>
+</section>
+
+<!-- GRID -->
+<div class="grid-section">
+  <div class="grid-cell">
+    <div class="gc-index">/ 01</div>
+    <div class="gc-title">The Fabric</div>
+    <p class="gc-body">380gsm+ cotton. Drop-washed. Built to feel like it's already been worn a thousand times on day one.</p>
+  </div>
+  <div class="grid-cell">
+    <div class="gc-index">/ 02</div>
+    <div class="gc-title">The Cut</div>
+    <p class="gc-body">Oversized, but with intent. Every silhouette is engineered — not just thrown on a mannequin and called a day.</p>
+  </div>
+  <div class="grid-cell">
+    <div class="gc-index">/ 03</div>
+    <div class="gc-title">The Drop</div>
+    <p class="gc-body">When it's gone, it's gone. No restocks, no reprints. If you sleep, you lose. Get on the list.</p>
+  </div>
+</div>
+
+<!-- COLLECTION PREVIEW -->
+<section class="collection">
+  <div class="col-header">
+    <div class="col-header-title">Collection 001 — SS26</div>
+    <div class="col-header-note">Unveiling Soon</div>
+  </div>
+  <div class="col-grid">
+    <div class="col-card"><div class="col-card-line"></div><span class="col-card-label">Coming Soon</span><div class="col-card-num">01</div></div>
+    <div class="col-card"><div class="col-card-line"></div><span class="col-card-label">Coming Soon</span><div class="col-card-num">02</div></div>
+    <div class="col-card"><div class="col-card-line"></div><span class="col-card-label">Coming Soon</span><div class="col-card-num">03</div></div>
+    <div class="col-card"><div class="col-card-line"></div><span class="col-card-label">Coming Soon</span><div class="col-card-num">04</div></div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="ft-cell">
+    <div class="ft-logo">OTHRWRLD</div>
+    <div class="ft-copy">© 2026 — All rights reserved</div>
+  </div>
+  <div class="ft-cell">
+    <div class="ft-links">
+      <a class="ft-link" href="#">Collections</a>
+      <a class="ft-link" href="#">About</a>
+      <a class="ft-link" href="#">Contact</a>
+    </div>
+  </div>
+  <div class="ft-cell">
+    <div class="ft-social">
+      <a class="ft-link" href="#">Instagram</a>
+      <a class="ft-link" href="#">TikTok</a>
+      <a class="ft-link" href="#">Twitter / X</a>
+    </div>
+  </div>
+</footer>
+
+</div><!-- /view-main -->
+
+
+<!-- ═══════════ LOGIN ═══════════ -->
+<div class="view" id="view-login">
+  <div class="login-bar">
+    <span class="nav-logo">OTHRWRLD</span>
+    <button class="login-back" onclick="go('view-main')">Back to site</button>
+  </div>
+  <div class="login-body">
+    <div class="login-card">
+      <div class="login-head">Admin</div>
+      <div class="login-sub">Restricted Access</div>
+      <div class="lfield">
+        <label class="llabel" for="lUser">Username</label>
+        <input class="linput" type="text" id="lUser" autocomplete="off">
+      </div>
+      <div class="lfield">
+        <label class="llabel" for="lPass">Password</label>
+        <input class="linput" type="password" id="lPass" autocomplete="off">
+      </div>
+      <div class="lerr" id="lErr"></div>
+      <button class="lsubmit" onclick="doLogin()">Enter</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════ ADMIN ═══════════ -->
+<div class="view" id="view-admin">
+  <div class="admin-bar">
+    <div class="admin-bar-logo">OTHRWRLD / Admin</div>
+    <div class="admin-bar-right">
+      <span class="admin-who">Logged in as Hakan</span>
+      <button class="admin-lo" onclick="doLogout()">Log Out</button>
+    </div>
+  </div>
+
+  <div class="admin-body">
+    <div class="admin-title">Dashboard</div>
+    <div class="admin-date" id="aDate"></div>
+
+    <div class="astats">
+      <div class="astat">
+        <div class="astat-lbl">Subscribers</div>
+        <div class="astat-val" id="aSubCount">0</div>
+        <div class="astat-sub">On the waitlist</div>
+      </div>
+      <div class="astat">
+        <div class="astat-lbl">Products Live</div>
+        <div class="astat-val">0</div>
+        <div class="astat-sub">Awaiting drop</div>
+      </div>
+      <div class="astat">
+        <div class="astat-lbl">Collections</div>
+        <div class="astat-val">1</div>
+        <div class="astat-sub">In preparation</div>
+      </div>
+      <div class="astat">
+        <div class="astat-lbl">Status</div>
+        <div class="astat-val" style="font-size:1rem;padding-top:6px">
+          <div class="spill"><div class="sdot"></div>Pre-Launch</div>
+        </div>
+        <div class="astat-sub" style="margin-top:12px">Coming soon mode</div>
+      </div>
+    </div>
+
+    <div class="apanels">
+      <div class="apanel">
+        <div class="apanel-hd">Subscriber List</div>
+        <div class="sub-head">
+          <div class="sh">Email</div>
+          <div class="sh">Date</div>
+          <div class="sh">Status</div>
+        </div>
+        <div id="aSubRows"></div>
+        <div class="no-sub-msg" id="aNoSub">No subscribers yet.</div>
+      </div>
+      <div class="apanel">
+        <div class="apanel-hd">Launch Settings</div>
+        <div class="lp-item"><div class="lp-lbl">Brand</div><div class="lp-val">OTHRWRLD</div></div>
+        <div class="lp-item"><div class="lp-lbl">Mode</div><div class="lp-val">Coming Soon</div></div>
+        <div class="lp-item"><div class="lp-lbl">First Collection</div><div class="lp-val">001 — SS26</div></div>
+        <div class="lp-item"><div class="lp-lbl">Products Published</div><div class="lp-val">0 / 0</div></div>
+        <div class="lp-item"><div class="lp-lbl">Email Capture</div><div class="lp-val">Active</div></div>
+        <div class="lp-item"><div class="lp-lbl">Shipping</div><div class="lp-val">Global</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<script>
+// CURSOR
+const cur=document.getElementById('cur'),curo=document.getElementById('curo');
+let cx=0,cy=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{cx=e.clientX;cy=e.clientY;cur.style.left=cx+'px';cur.style.top=cy+'px'});
+(function L(){rx+=(cx-rx)*.1;ry+=(cy-ry)*.1;curo.style.left=rx+'px';curo.style.top=ry+'px';requestAnimationFrame(L)})();
+document.querySelectorAll('a,button,input,.col-card,.htag').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{cur.classList.add('big');curo.classList.add('big')});
+  el.addEventListener('mouseleave',()=>{cur.classList.remove('big');curo.classList.remove('big')});
+});
+
+// VIEWS
+function go(id){document.querySelectorAll('.view').forEach(v=>v.classList.remove('on'));document.getElementById(id).classList.add('on');window.scrollTo(0,0)}
+
+// DATA
+let subs=[];
+function renderSubs(){
+  document.getElementById('aSubCount').textContent=subs.length;
+  const rows=document.getElementById('aSubRows');
+  rows.innerHTML='';
+  document.getElementById('aNoSub').style.display=subs.length?'none':'block';
+  subs.forEach(s=>{rows.innerHTML+=`<div class="sub-r"><div class="sc">${s.e}</div><div class="sc dim">${s.d}</div><div class="sc"><span class="stag">Active</span></div></div>`});
+}
+
+// EMAIL
+function doEmail(){
+  const i=document.getElementById('eIn');
+  if(!i.value||!i.value.includes('@')){i.style.outline='1.5px solid var(--red)';setTimeout(()=>i.style.outline='',900);return}
+  const d=new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+  if(!subs.find(s=>s.e===i.value.toLowerCase()))subs.push({e:i.value.toLowerCase(),d});
+  document.querySelector('.email-line').style.display='none';
+  document.getElementById('eHint').style.display='none';
+  document.getElementById('eOk').style.display='block';
+  renderSubs();
+}
+
+// LOGIN
+function doLogin(){
+  const u=document.getElementById('lUser').value.trim();
+  const p=document.getElementById('lPass').value;
+  const err=document.getElementById('lErr');
+  if(u==='hakan'&&p==='123456'){
+    document.getElementById('aDate').textContent=new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'}).toUpperCase();
+    renderSubs();go('view-admin');
+    document.getElementById('lUser').value='';document.getElementById('lPass').value='';err.textContent='';
+  }else{
+    err.textContent='Wrong credentials.';
+    [document.getElementById('lUser'),document.getElementById('lPass')].forEach(el=>{el.classList.add('err');setTimeout(()=>el.classList.remove('err'),500)});
+    setTimeout(()=>err.textContent='',2500);
+  }
+}
+function doLogout(){go('view-main')}
+
+document.addEventListener('keydown',e=>{
+  if(e.key!=='Enter')return;
+  const v=document.querySelector('.view.on').id;
+  if(v==='view-main')doEmail();
+  if(v==='view-login')doLogin();
+});
+
+// MARQUEE
+const mw=['OTHRWRLD','//','SS26','//','Limited Drops','//','No Restocks','//','Get On The List','//','Heavy Cotton','//','Oversized Fits','//','Global Shipping','//','OTHRWRLD','//','SS26','//','Limited Drops','//','No Restocks','//','Get On The List','//','Heavy Cotton','//','Oversized Fits','//','Global Shipping','//'];
+document.getElementById('mTrack').innerHTML=[...mw,...mw].map((w,i)=>`<span class="m-item${w==='//'?' red':''}">${w}</span>`).join('');
+</script>
+</body>
+</html>
